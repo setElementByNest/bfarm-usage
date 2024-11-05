@@ -23,7 +23,7 @@ async function connectToDatabase() {
 
     return client;
 }
-app.get('/data', async (req, res) => {
+app.get('/', async (req, res) => {
     const databaseName = process.env.DATABASENAME; // Database name from .env
     const collectionName = process.env.COLLECTION; // Collection name from .env
 
