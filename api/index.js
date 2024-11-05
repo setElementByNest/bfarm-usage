@@ -23,6 +23,34 @@ async function connectToDatabase() {
 
     return client;
 }
+app.get('/data', async (req, res) => {
+    const databaseName = process.env.DATABASENAME; // Database name from .env
+    const collectionName = process.env.COLLECTION; // Collection name from .env
+
+    try {
+        // Connect to the database
+        const client = await connectToDatabase();
+        const database = client.db(databaseName);
+        const collection = database.collection(collectionName);
+
+        // Retrieve data from the collection
+        const data = await collection.find({}).toArray(); // Adjust query as needed
+
+        // Format data to return
+        // const formattedData = data.map(item => ({
+        //     id: `data${item.chip_id}`, // Assuming chip_id is available in the item
+        //     chip_id: item.chip_id,
+        //     time: item.time,
+        //     status: item.status
+        // }));
+
+        res.status(200).json(data); // Send back formatted data as JSON
+        // res.status(200).json(formattedData); // Send back formatted data as JSON
+    } catch (error) {
+        console.error('Error retrieving documents:', error);
+        res.status(500).send('Error retrieving documents');
+    }
+});
 
 // Define the POST route
 app.post('/add', async (req, res) => {
