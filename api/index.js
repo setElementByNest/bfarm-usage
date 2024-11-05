@@ -37,15 +37,14 @@ app.get('/data', async (req, res) => {
         const data = await collection.find({}).toArray(); // Adjust query as needed
 
         // Format data to return
-        // const formattedData = data.map(item => ({
-        //     id: `data${item.chip_id}`, // Assuming chip_id is available in the item
-        //     chip_id: item.chip_id,
-        //     time: item.time,
-        //     status: item.status
-        // }));
+        const formattedData = data.map(item => ({
+            id: item._id, // Assuming chip_id is available in the item
+            name: item.name,
+            ip: item.ip,
+            time: item.time
+        }));
 
-        res.status(200).json(data); // Send back formatted data as JSON
-        // res.status(200).json(formattedData); // Send back formatted data as JSON
+        res.status(200).json(formattedData); // Send back formatted data as JSON
     } catch (error) {
         console.error('Error retrieving documents:', error);
         res.status(500).send('Error retrieving documents');
