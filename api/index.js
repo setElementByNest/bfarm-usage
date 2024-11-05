@@ -1,24 +1,38 @@
 require('dotenv').config();
+const express = require('express');
 const { MongoClient } = require('mongodb');
 
 const uri = process.env.URI_MONGODB; // MongoDB URI from .env
 const client = new MongoClient(uri);
+const app = express();
 
-module.exports = async (req, res) => {
+// Middleware to parse JSON bodies
+app.use(express.json());
+
+let isConnected = false; // Track connection status
+
+async function connectToDatabase() {
+    if (!client) {
+        client = new MongoClient(uri);
+    }
+
+    if (!isConnected) {
+        await client.connect();
+        isConnected = true; // Set connection status to true
+    }
+
+    return client;
+}
+
+// Define the POST route
+app.post('/add', async (req, res) => {
     const databaseName = process.env.DATABASENAME; // Database name from .env
     const collectionName = process.env.COLLECTION; // Collection name from .env
     const documents = req.body; // Get the documents from the request body
 
-    if (req.method !== 'POST') {
-        res.setHeader('Allow', ['POST']);
-        return res.status(405).end(`Method ${req.method} Not Allowed`);
-    }
-
     try {
-        // Connect the client to the server
-        await client.connect();
-
-        // Access the database and collection
+        // Connect to the database
+        const client = await connectToDatabase();
         const database = client.db(databaseName);
         const collection = database.collection(collectionName);
 
@@ -28,8 +42,8 @@ module.exports = async (req, res) => {
     } catch (error) {
         console.error('Error inserting documents:', error);
         res.status(500).send('Error inserting documents');
-    } finally {
-        // Close the connection
-        await client.close();
     }
-};
+});
+
+// Vercel export function
+module.exports = app;
