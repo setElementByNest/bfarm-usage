@@ -38,10 +38,11 @@ app.get('/', async (req, res) => {
 
         // Format data to return
         const formattedData = data.map(item => ({
-            id: item._id, // Assuming chip_id is available in the item
-            name: item.name,
-            ip: item.ip,
-            time: item.time
+            // id: item?._id, // Assuming chip_id is available in the item
+            // name: item?.name,
+            // ip: item?.ip,
+            // time: item?.time,
+            ...Object.fromEntries(Object.keys(item || {}).map(key => ([key, item[key]])))
         }));
 
         res.status(200).json(formattedData); // Send back formatted data as JSON
